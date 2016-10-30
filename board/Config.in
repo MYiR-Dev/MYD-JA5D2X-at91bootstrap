@@ -25,6 +25,7 @@ source "board/sama5d4ek/Config.in.board"
 source "board/sama5d4_xplained/Config.in.board"
 source "board/sama5d2_ptc/Config.in.board"
 source "board/sama5d2_xplained/Config.in.board"
+source "board/myd_ja5d2x/Config.in.board"
 source "contrib/board/Config.in.board"
 
 endchoice
@@ -48,6 +49,7 @@ config CONFIG_BOARDNAME
 	default "sama5d4ek" if CONFIG_SAMA5D4EK
 	default "sama5d2_ptc" if CONFIG_SAMA5D2_PTC
 	default "sama5d2_xplained" if CONFIG_SAMA5D2_XPLAINED
+	default "myd_ja5d2x" if CONFIG_MYD_JA5D2X
 source "contrib/board/Config.in.boardname"
 
 config AT91SAM9260

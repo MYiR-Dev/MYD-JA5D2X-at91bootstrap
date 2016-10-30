@@ -96,6 +96,10 @@
 #include "sama5d2_xplained.h"
 #endif
 
+#ifdef CONFIG_MYD_JA5D2X
+#include "myd_ja5d2x.h"
+#endif
+
 #include "contrib_board.h"
 
 /*
