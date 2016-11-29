@@ -41,12 +41,13 @@
 #include "arch/at91_pio.h"
 #include "arch/at91_ddrsdrc.h"
 #include "arch/at91_sfr.h"
-#include "myd_ja5d2x.h"
+#include "arch/sama5_smc.h"
 #include "l2cc.h"
 #include "act8865.h"
 #include "twi.h"
 #include "arch/tz_matrix.h"
 #include "matrix.h"
+#include "myd_ja5d2x.h"
 
 static void at91_dbgu_hw_init(void)
 {
@@ -860,6 +861,65 @@ unsigned int at91_twi0_hw_init(void)
 	return base_addr;
 }
 #endif
+
+#ifdef CONFIG_NANDFLASH
+void nandflash_hw_init(void)
+{
+    const struct pio_desc nand_pins[] = {
+		{"NANDOE", CONFIG_SYS_NAND_OE_PIN, 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"NANDWE", CONFIG_SYS_NAND_WE_PIN, 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"NANDALE", CONFIG_SYS_NAND_ALE_PIN, 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"NANDCLE", CONFIG_SYS_NAND_CLE_PIN, 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"NANDCS", CONFIG_SYS_NAND_ENABLE_PIN, 1, PIO_DEFAULT, PIO_OUTPUT},
+		{"D0", AT91C_PIN_PA(0), 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"D1", AT91C_PIN_PA(1), 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"D2", AT91C_PIN_PA(2), 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"D3", AT91C_PIN_PA(3), 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"D4", AT91C_PIN_PA(4), 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"D5", AT91C_PIN_PA(5), 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"D6", AT91C_PIN_PA(6), 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"D7", AT91C_PIN_PA(7), 0, PIO_PULLUP, PIO_PERIPH_F},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(nand_pins);
+	pmc_sam9x5_enable_periph_clk(AT91C_ID_HSMC);
+
+	/* EBI Configuration Register */
+	writel((AT91C_EBICFG_DRIVE0_HIGH |
+		AT91C_EBICFG_PULL0_NONE |
+		AT91C_EBICFG_DRIVE1_HIGH |
+		AT91C_EBICFG_PULL1_NONE), SFR_EBICFG + AT91C_BASE_SFR);
+
+	/* Configure SMC CS3 for NAND/SmartMedia */
+	writel(AT91C_SMC_SETUP_NWE(1) |
+	       AT91C_SMC_SETUP_NCS_WR(1) |
+	       AT91C_SMC_SETUP_NRD(1) |
+	       AT91C_SMC_SETUP_NCS_RD(1), (ATMEL_BASE_SMC + SMC_SETUP3));
+
+	writel(AT91C_SMC_PULSE_NWE(2) |
+	       AT91C_SMC_PULSE_NCS_WR(3) |
+	       AT91C_SMC_PULSE_NRD(2) |
+	       AT91C_SMC_PULSE_NCS_RD(3), (ATMEL_BASE_SMC + SMC_PULSE3));
+
+	writel(AT91C_SMC_CYCLE_NWE(5) |
+	       AT91C_SMC_CYCLE_NRD(5), (ATMEL_BASE_SMC + SMC_CYCLE3));
+
+	writel(AT91C_SMC_TIMINGS_TCLR(2) |
+	       AT91C_SMC_TIMINGS_TADL(7) |
+	       AT91C_SMC_TIMINGS_TAR(2) |
+	       AT91C_SMC_TIMINGS_TRR(3) |
+	       AT91C_SMC_TIMINGS_TWB(7) |
+	       AT91C_SMC_TIMINGS_RBNSEL(2) |
+	       AT91C_SMC_TIMINGS_NFSEL, (ATMEL_BASE_SMC + SMC_TIMINGS3));
+
+	writel(AT91C_SMC_MODE_READMODE_NRD_CTRL |
+	       AT91C_SMC_MODE_WRITEMODE_NWE_CTRL |
+	       AT91C_SMC_MODE_DBW_8 |
+	       AT91C_SMC_MODE_TDF_CYCLES(1), (ATMEL_BASE_SMC + SMC_MODE3));
+}
+#endif /* #ifdef CONFIG_NANDFLASH */
+
 
 #if defined(CONFIG_TWI1)
 unsigned int at91_twi1_hw_init(void)
