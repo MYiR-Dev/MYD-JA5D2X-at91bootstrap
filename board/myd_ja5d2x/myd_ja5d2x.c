@@ -257,7 +257,7 @@ static int matrix_init(void)
 #if defined(CONFIG_DDR3)
 static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 {
-	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS
+	ddramc_config->mdr = (AT91C_DDRC2_DBW_16_BITS
 				| AT91C_DDRC2_MD_DDR3_SDRAM);
 
 	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9
