@@ -383,6 +383,14 @@ static void HDMI_Qt1070_workaround(void)
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
+        /* Configure PIN for SPI0 */
+        const struct pio_desc usben_pin[] = {
+                {"usb-enable", AT91C_PIN_PD(25), 0, PIO_DEFAULT, PIO_OUTPUT},
+                {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+        };
+        /* Configure the PIO controller */
+	pmc_enable_periph_clock(AT91C_ID_PIOD, PMC_PERIPH_CLK_DIVIDER_NA);
+        pio_configure(usben_pin);
 	/* Disable watchdog */
 	at91_disable_wdt();
 
