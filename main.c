@@ -26,6 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "common.h"
+#include "hardware.h"
 #include "board.h"
 #include "usart.h"
 #include "slowclk.h"
@@ -50,6 +51,9 @@ int main(void)
 	struct image_info image;
 #endif
 	int ret = 0;
+
+	/* added by MYIR */
+	unsigned int sn, rev;
 
 #ifdef CONFIG_HW_INIT
 	hw_init();
@@ -99,6 +103,12 @@ int main(void)
 
 	act8945a_suspend_charger();
 #endif
+
+	/* added by MYIR */
+	sn  = 0x6b;
+	rev = 0x10001;
+	writel(sn, AT91C_BASE_GPBR + 4 * 2);
+	writel(rev, AT91C_BASE_GPBR + 4 * 3);
 
 #if !defined(CONFIG_LOAD_NONE) && !defined(CONFIG_SKIP_COPY_IMAGE)
 	init_load_image(&image);
